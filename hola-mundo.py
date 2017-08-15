@@ -5,3 +5,5 @@ print('jijijijijiji')
 print('juujujuj')
 
 print('hg')
+
+import numpy as np
