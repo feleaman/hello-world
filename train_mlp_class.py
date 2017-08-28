@@ -37,10 +37,15 @@ tol=1.e-9, verbose=True, max_iter=1000)
 clf.fit(images_rs, num_lines)   
 
 
-pik_filename = 'model_05.pkl'
-pik = open(pik_filename, 'wb')
-pickle.dump(clf, pik)
-pik.close()
+def save_pickle(pickle_name, pickle_data):
+	pik = open(pickle_name, 'wb')
+	pickle.dump(pickle_data, pik)
+	pik.close()
+	
+# pik_filename = 'model_05.pkl'
+# pik = open(pik_filename, 'wb')
+# pickle.dump(clf, pik)
+# pik.close()
 
 
 sys.exit()
