@@ -4,6 +4,16 @@ import sys
 import matplotlib.pyplot as plt
 from scipy import interpolate
 
+def mag_fft(x, fs):
+	fftx = np.fft.fft(x)
+	fftx = np.abs(fftx)/len(fftx)
+	fftx = 2*fftx[0:int(len(fftx)/2)]
+	tr = len(x)/fs
+	df = 1.0/tr
+	f = np.array([i*df for i in range(len(fftx))])
+	magX = fftx
+	return magX, f, df
+
 def sifting_iteration(t, x):
 	s_number = 5
 	tolerance = 10
@@ -117,17 +127,17 @@ def sifting2(t, x):
 	h = x - x_mean
 	return h, extrema_x
 #++++++++++++++++++++++++++++DEFINITION
-filename = 	'defect_v3_n1500_m80.txt'
-xraw = np.loadtxt(filename)
-
-filename = 	'ok_v3_n1500_m80.txt'
-xrawok = np.loadtxt(filename)
-
-filename = 	'h1.txt'
+filename = 	'h1_V1_9_n1500_M80_AE_Signal_20160928_144737.txt'
 h1 = np.loadtxt(filename)
 
-filename = 	'h1ok.txt'
-h1ok = np.loadtxt(filename)
+# filename = 	'ok_v3_n1500_m80.txt'
+# xrawok = np.loadtxt(filename)
+
+# filename = 	'h1.txt'
+# h1 = np.loadtxt(filename)
+
+# filename = 	'h1ok.txt'
+# h1ok = np.loadtxt(filename)
 
 x = h1
 
@@ -173,30 +183,68 @@ plt.show()
 
 from scipy.signal import hilbert
 
+fs = 1000000.
+
 hx = hilbert(h1)
 pha = np.angle(hx)
 pha = np.unwrap(pha)
 pha = np.array([pha[i+1] - pha[i] for i in range(len(pha)-1)])
 pha = pha / dt
+pha = pha / (2*np.pi)
 
 amp = np.absolute(hx)
 
-fig1, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
+fig1, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
 ax[0].plot(pha)
 ax[1].plot(amp)
+ax[2].plot(h1)
 
 
-hx = hilbert(h1ok)
-pha = np.angle(hx)
-pha = np.unwrap(pha)
-pha = np.array([pha[i+1] - pha[i] for i in range(len(pha)-1)])
-pha = pha / dt
 
-amp = np.absolute(hx)
+# fig2, ax = plt.subplots(nrows=2, ncols=2, sharex=True)
+# fft_amp, f, df = mag_fft(amp, fs)
+# fft_h1, f, df = mag_fft(h1, fs)
 
-fig2, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
-ax[0].plot(pha)
-ax[1].plot(amp)
+# ax[0][0].plot(h1)
+# ax[0][1].plot(amp)
+# ax[1][0].plot(fft_h1)
+# ax[1][1].plot(fft_amp)
+
+
+
+fig3, ax = plt.subplots(nrows=2, ncols=2)
+fourier_h1 = np.fft.fft(h1)
+fourier_amp = np.fft.fft(amp)
+
+# autocorr_amp_def = np.correlate(amp, amp, mode='same')
+# autocorr_h1 = np.real(np.fft.ifft(fourier_h1*np.conjugate(fourier_h1)))
+autocorr_amp = np.real(np.fft.ifft(fourier_amp*np.conjugate(fourier_amp)))
+fft_autocorr_amp, f, df = mag_fft(autocorr_amp, fs)
+
+print(len(autocorr_amp))
+print(len(h1))
+# print(len(autocorr_def))
+# np.interp(np.linspace(0, len(autocorr_amp)-1, len(autocorr_amp)/2), [i for i in range(len(autocorr_amp))], autocorr_amp)
+
+ax[0][0].plot(amp)
+ax[0][1].plot(amp)
+ax[1][0].plot(autocorr_amp[0:len(autocorr_amp)/2])
+ax[1][1].plot(fft_autocorr_amp)
+
+
+
+
+# hx = hilbert(h1ok)
+# pha = np.angle(hx)
+# pha = np.unwrap(pha)
+# pha = np.array([pha[i+1] - pha[i] for i in range(len(pha)-1)])
+# pha = pha / dt
+
+# amp = np.absolute(hx)
+
+# fig2, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
+# ax[0].plot(pha)
+# ax[1].plot(amp)
 
 
 

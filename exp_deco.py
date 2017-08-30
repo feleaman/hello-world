@@ -3,13 +3,23 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 from scipy import interpolate
+import time
+start_time = time.time()
+from os.path import isfile, join
+import scipy.io
+
+
+def f_open_mat(filename, channel):
+	file = scipy.io.loadmat(filename)
+	data = file[channel]
+	return data
 
 def sifting_iteration(t, x):
 	s_number = 5
-	tolerance = 10
-	error = 5000
-	max_iter = 505
-	min_iter = 500
+	tolerance = 2
+	error = 5000000
+	max_iter = 10000
+	min_iter = 5000
 	cont = 0
 	s_iter = 10
 	while (error > tolerance or s_iter < s_number):
@@ -117,9 +127,18 @@ def sifting2(t, x):
 	h = x - x_mean
 	return h, extrema_x
 #++++++++++++++++++++++++++++DEFINITION
-filename = 	'ok_v3_n1500_m80.txt'
+# filename = 	'ok_v3_n1500_m80.txt'
+mypath = 'C:/Felix/Data/CNs_Getriebe/Paper_Bursts/n1500_M80/Fault'
+file = join(mypath, 'V1_9_n1500_M80_AE_Signal_20160928_144737.mat')
+channel = 'AE_Signal'
 
-x = np.loadtxt(filename)
+x = f_open_mat(file, channel)
+x = np.ndarray.flatten(x)
+
+n_points = 2**(20)
+x = x[0:n_points]
+
+# x = np.loadtxt(filename)
 
 # filename = 	'h1.txt'
 # h1 = np.loadtxt(filename)
@@ -138,7 +157,8 @@ t = np.array([i*dt for i in range(n)])
 
 
 h1 = sifting_iteration(t, x)
-np.savetxt('h1ok.txt', h1)
+np.savetxt('h1_V1_9_n1500_M80_AE_Signal_20160928_144737.txt', h1)
+
 # h1 = sifting(t, x)
 # print(extrema(h1)-extrema(x))
 # print(xzeros(h1)-xzeros(x))
@@ -161,11 +181,12 @@ np.savetxt('h1ok.txt', h1)
 # ax.plot(t, x_down, color='green')
 # ax.plot(t, x_mean, '-')
 # plt.show()
-fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
-ax[0].plot(t, h1)
-ax[1].plot(t, h2)
-plt.show()
+# fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
+# ax[0].plot(t, x)
+# ax[1].plot(t, h1)
+# plt.show()
 
-
+print("--- %s seconds ---" % (time.time() - start_time))
+sys.exit()
 #++++++++++++++++++++++++++++++++COMMENTS
 
